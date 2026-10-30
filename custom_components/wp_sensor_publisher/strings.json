@@ -1,0 +1,34 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to WordPress",
+        "description": "Enter WordPress site URL, secret token, and select sensors to publish.",
+        "data": {
+          "url": "REST API URL",
+          "token": "Secret Token (X-HA-Token)",
+          "scan_interval": "Publish Interval",
+          "entities": "Sensors"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to WordPress site. Check URL.",
+      "invalid_auth": "Token rejected by WordPress (403 Forbidden)."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Configure Sensor Publishing",
+        "description": "Update sensors, interval, or connection parameters.",
+        "data": {
+          "url": "REST API URL",
+          "token": "Secret Token",
+          "scan_interval": "Publish Interval",
+          "entities": "Sensors"
+        }
+      }
+    }
+  }
+}

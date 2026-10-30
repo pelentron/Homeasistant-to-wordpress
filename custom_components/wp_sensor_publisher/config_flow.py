@@ -29,19 +29,19 @@ def build_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
         {
             vol.Required(
                 CONF_URL,
-                default=defaults.get(CONF_URL, "https://your-site.com/wp-json/ha-publisher/v1/update"),
+                default=defaults.get(CONF_URL) or "https://your-site.com/wp-json/ha-publisher/v1/update",
             ): selector.TextSelector(
                 selector.TextSelectorConfig(type=selector.TextSelectorType.URL)
             ),
             vol.Required(
                 CONF_TOKEN,
-                default=defaults.get(CONF_TOKEN, ""),
+                default=defaults.get(CONF_TOKEN) or "",
             ): selector.TextSelector(
                 selector.TextSelectorConfig(type=selector.TextSelectorType.PASSWORD)
             ),
             vol.Required(
                 CONF_SCAN_INTERVAL,
-                default=defaults.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL),
+                default=int(defaults.get(CONF_SCAN_INTERVAL) or DEFAULT_SCAN_INTERVAL),
             ): selector.NumberSelector(
                 selector.NumberSelectorConfig(
                     min=1,
@@ -53,7 +53,7 @@ def build_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
             ),
             vol.Required(
                 CONF_ENTITIES,
-                default=defaults.get(CONF_ENTITIES, []),
+                default=defaults.get(CONF_ENTITIES) or [],
             ): selector.EntitySelector(
                 selector.EntitySelectorConfig(
                     domain="sensor",
@@ -114,10 +114,23 @@ class WpPublisherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 
 class WpPublisherOptionsFlowHandler(config_entries.OptionsFlow):
-    """Изменение настроек (датчики, интервал, токен) в любой момент через кнопку 'Настроить'."""
+    """Изменение настроек (датчики, интервал, токен) через кнопку 'Настроить'."""
 
-    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
-        self.config_entry = config_entry
+    def __init__(self, config_entry: config_entries.ConfigEntry | None = None) -> None:
+        """Инициализация options flow."""
+        super().__init__()
+        if config_entry is not None:
+            self._custom_entry = config_entry
+
+    @property
+    def _entry(self) -> config_entries.ConfigEntry | None:
+        """Получение config entry совместимо со всеми версиями Home Assistant."""
+        try:
+            if hasattr(self, "config_entry") and self.config_entry is not None:
+                return self.config_entry
+        except Exception:
+            pass
+        return getattr(self, "_custom_entry", None)
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
@@ -125,8 +138,11 @@ class WpPublisherOptionsFlowHandler(config_entries.OptionsFlow):
         if user_input is not None:
             return self.async_create_entry(title="", data=user_input)
 
-        # Берём текущие значения из options или из первоначального data
-        current_values = {**self.config_entry.data, **self.config_entry.options}
+        entry = self._entry
+        current_values = {}
+        if entry:
+            current_values = {**entry.data, **entry.options}
+
         return self.async_show_form(
             step_id="init",
             data_schema=build_schema(current_values),
