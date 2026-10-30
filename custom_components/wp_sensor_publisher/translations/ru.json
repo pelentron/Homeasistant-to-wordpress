@@ -1,0 +1,34 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Подключение к WordPress",
+        "description": "Укажите адрес сайта WordPress, секретный токен и выберите датчики для публикации.",
+        "data": {
+          "url": "REST API URL (из настроек плагина WordPress)",
+          "token": "Секретный токен (X-HA-Token)",
+          "scan_interval": "Интервал отправки",
+          "entities": "Список датчиков"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Не удалось связаться с сайтом WordPress. Проверьте URL.",
+      "invalid_auth": "Сайт отклонил токен (403 Forbidden). Проверьте ключ."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Настройка публикации датчиков",
+        "description": "Измените список публикуемых датчиков, интервал или параметры доступа.",
+        "data": {
+          "url": "REST API URL",
+          "token": "Секретный токен",
+          "scan_interval": "Интервал отправки",
+          "entities": "Список датчиков"
+        }
+      }
+    }
+  }
+}
